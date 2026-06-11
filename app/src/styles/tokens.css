@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=IBM+Plex+Mono:wght@400;500&family=Libre+Caslon+Display&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  /* Papel / tinta */
+  --paper: #fdfbf7;
+  --paper-2: #f5f1e9;
+  --paper-3: #ece5d8;
+  --ink: #211d18;
+  --ink-soft: #46413a;
+  --ink-mute: #786f64;
+  --ink-faint: #a69d8e;
+  --line: #e7dfd1;
+  --line-2: #ddd4c3;
+  --line-strong: #c9bfac;
+
+  /* Acento rojo */
+  --red: #cc2e29;
+  --red-deep: #a8211d;
+  --red-wash: #f9e6e3;
+  --red-line: #f0cbc6;
+
+  /* Estado completada (salvia) */
+  --done: #5f8a5f;
+  --done-wash: #e8efe2;
+
+  /* Radios */
+  --r-sm: 4px;
+  --r-md: 7px;
+  --r-lg: 12px;
+
+  /* Sombras */
+  --shadow-card: 0 1px 2px rgba(38,34,27,.04), 0 8px 24px -16px rgba(38,34,27,.16);
+  --shadow-pop: 0 18px 50px -18px rgba(38,34,27,.32);
+
+  /* Layout */
+  --sidebar-w: 256px;
+  --maxw: 1240px;
+
+  /* Tipografía */
+  --display: 'Bodoni Moda', Georgia, serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+[data-accent="carmesi"] {
+  --red: #9e1b1b;
+  --red-deep: #7d1515;
+}
+[data-accent="tinta"] {
+  --red: #221d18;
+  --red-deep: #0e0c0a;
+}
