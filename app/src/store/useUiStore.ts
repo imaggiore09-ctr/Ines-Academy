@@ -13,6 +13,9 @@ interface UiState {
   displayFont: DisplayFont;
   brandName: string;
   toast: string | null;
+  taskRef: { monthId: string; taskId: string } | null;
+  openTask: (monthId: string, taskId: string) => void;
+  closeTask: () => void;
   setRoute: (r: Route) => void;
   setAccent: (a: Accent) => void;
   setDashLook: (d: DashLook) => void;
@@ -30,7 +33,10 @@ export const useUiStore = create<UiState>()(
       displayFont: 'bodoni',
       brandName: 'de Cueto Sisters',
       toast: null,
-      setRoute: (route) => set({ route }),
+      taskRef: null,
+      openTask: (monthId, taskId) => set({ taskRef: { monthId, taskId } }),
+      closeTask: () => set({ taskRef: null }),
+      setRoute: (route) => set({ route, taskRef: null }),
       setAccent: (accent) => set({ accent }),
       setDashLook: (dashLook) => set({ dashLook }),
       setDisplayFont: (displayFont) => set({ displayFont }),
