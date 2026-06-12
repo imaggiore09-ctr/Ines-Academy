@@ -29,13 +29,11 @@ function RouteView() {
 
 export function AppShell() {
   return (
-    <div className="app-shell">
+    <div className="app">
       <Sidebar />
-      <div className="main-col">
+      <div className="main">
         <Topbar />
-        <main className="main-content">
-          <RouteView />
-        </main>
+        <RouteView />
       </div>
     </div>
   );
