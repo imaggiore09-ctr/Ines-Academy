@@ -6,18 +6,72 @@ import { Bar } from '@/components/ui/Bar';
 import { ImgPh } from '@/components/ui/ImgPh';
 import { Spots } from '@/components/ui/Spots';
 import { PageHead } from '@/components/ui/PageHead';
+import { LEARN_CONTENT } from '@/data/learn';
+import type { Lesson } from '@/data/learn';
 import type { LearnModule } from '@/types/models';
+
+/* ─── Vista de una lección abierta ─── */
+function LessonView({ lesson, index, total, onBack }: { lesson: Lesson; index: number; total: number; onBack: () => void }) {
+  return (
+    <div>
+      <button className="btn ghost sm" onClick={onBack} style={{ marginBottom: 16 }}>
+        <Icon name="chevron" size={14} style={{ transform: 'rotate(180deg)' }} /> Todas las lecciones
+      </button>
+      <div className="kicker kicker-red">Lección {String(index + 1).padStart(2, '0')} de {total} · {lesson.duracion} min</div>
+      <h3 className="display" style={{ fontSize: 24, margin: '8px 0 18px' }}>{lesson.t}</h3>
+
+      {lesson.contenido.map((p, i) => (
+        <p key={i} style={{ fontSize: 14.5, lineHeight: 1.65, color: 'var(--ink-soft)', marginBottom: 14 }}>{p}</p>
+      ))}
+
+      <div style={{ background: 'var(--paper-2)', borderRadius: 'var(--r-md)', padding: '16px 18px', margin: '20px 0' }}>
+        <div className="kicker" style={{ marginBottom: 10 }}>Lo que te llevas</div>
+        <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--ink-soft)', fontSize: 13.5, lineHeight: 1.7 }}>
+          {lesson.clave.map((c, i) => <li key={i}>{c}</li>)}
+        </ul>
+      </div>
+
+      <div style={{ background: 'var(--red-wash)', border: '1px solid var(--red-line)', borderRadius: 'var(--r-md)', padding: '15px 18px', display: 'flex', gap: 12 }}>
+        <Icon name="edit" size={18} style={{ color: 'var(--red-deep)', flex: 'none', marginTop: 2 }} />
+        <div>
+          <div className="kicker kicker-red" style={{ marginBottom: 5 }}>Ejercicio aplicado</div>
+          <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', lineHeight: 1.55 }}>{lesson.ejercicio}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function LessonModal({ mod, onClose }: { mod: LearnModule; onClose: () => void }) {
   const { toggleModule } = useAppStore();
+  const content = LEARN_CONTENT[mod.id];
+  const [open, setOpen] = useState<number | null>(null);
+
+  // Fallback si aún no hay contenido para este módulo
+  if (!content) {
+    return (
+      <Modal kicker={mod.cat + ' · ' + mod.min + ' min'} title={mod.t} onClose={onClose} wide
+        footer={<button className="btn ghost sm" onClick={onClose}>Cerrar</button>}>
+        <p className="muted">Contenido en preparación.</p>
+      </Modal>
+    );
+  }
+
+  const lesson = open !== null ? content.lessons[open] : null;
+
   return (
     <Modal
-      kicker={mod.cat + ' · ' + mod.min + ' min'}
+      kicker={mod.cat + ' · ' + mod.min + ' min · ' + content.lessons.length + ' lecciones'}
       title={mod.t}
       onClose={onClose}
       wide
       footer={
         <>
+          {open !== null && content.lessons[open + 1] && (
+            <button className="btn ghost sm" onClick={() => setOpen(open + 1)} style={{ marginRight: 'auto' }}>
+              Siguiente lección <Icon name="arrow" size={14} />
+            </button>
+          )}
           <button className="btn ghost sm" onClick={onClose}>Cerrar</button>
           <button className="btn red sm" onClick={() => { toggleModule(mod.id); onClose(); }}>
             <Icon name="check" size={15} /> {mod.done ? 'Marcar sin completar' : 'Marcar completado'}
@@ -25,20 +79,40 @@ function LessonModal({ mod, onClose }: { mod: LearnModule; onClose: () => void }
         </>
       }
     >
-      <ImgPh label="Portada del módulo" style={{ aspectRatio: '16/7', marginBottom: 18 }} />
-      <p className="muted" style={{ marginBottom: 18 }}>
-        Una guía práctica en {mod.mods} lecciones para que avances a tu ritmo. Cada lección incluye un ejercicio aplicado a tu propio proyecto.
-      </p>
-      <div className="kicker" style={{ marginBottom: 12 }}>Lecciones</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {Array.from({ length: mod.mods }).map((_, i) => (
-          <div key={i} className="row" style={{ gap: 12, padding: '11px 0', borderBottom: i < mod.mods - 1 ? '1px solid var(--line)' : 'none' }}>
-            <span className="display" style={{ fontSize: 16, color: 'var(--red)', width: 26 }}>{String(i + 1).padStart(2, '0')}</span>
-            <span style={{ flex: 1, fontSize: 14 }}>Lección {i + 1}</span>
-            <Icon name="arrow" size={15} style={{ color: 'var(--ink-faint)' }} />
+      {lesson ? (
+        <LessonView lesson={lesson} index={open!} total={content.lessons.length} onBack={() => setOpen(null)} />
+      ) : (
+        <>
+          <ImgPh label="Portada del módulo" style={{ aspectRatio: '16/7', marginBottom: 18 }} />
+          <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-soft)', marginBottom: 16 }}>{content.intro}</p>
+
+          <div className="grid g-2" style={{ gap: 16, marginBottom: 22 }}>
+            <div style={{ background: 'var(--paper-2)', borderRadius: 'var(--r-md)', padding: '14px 16px' }}>
+              <div className="kicker" style={{ marginBottom: 10 }}>Qué vas a conseguir</div>
+              <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--ink-soft)', fontSize: 13, lineHeight: 1.65 }}>
+                {content.objetivos.map((o, i) => <li key={i}>{o}</li>)}
+              </ul>
+            </div>
+            <div style={{ background: 'var(--paper-2)', borderRadius: 'var(--r-md)', padding: '14px 16px' }}>
+              <div className="kicker" style={{ marginBottom: 10 }}>Para quién y cuándo</div>
+              <p style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.6 }}>{content.paraQuien}</p>
+            </div>
           </div>
-        ))}
-      </div>
+
+          <div className="kicker" style={{ marginBottom: 12 }}>Lecciones</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {content.lessons.map((l, i) => (
+              <button key={i} className="row" onClick={() => setOpen(i)}
+                style={{ gap: 12, padding: '13px 4px', borderBottom: i < content.lessons.length - 1 ? '1px solid var(--line)' : 'none', background: 'none', border: 'none', borderBottomStyle: 'solid', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+                <span className="display" style={{ fontSize: 16, color: 'var(--red)', width: 26, flex: 'none' }}>{String(i + 1).padStart(2, '0')}</span>
+                <span style={{ flex: 1, fontSize: 14 }}>{l.t}</span>
+                <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-faint)' }}>{l.duracion} min</span>
+                <Icon name="arrow" size={15} style={{ color: 'var(--ink-faint)', flex: 'none' }} />
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </Modal>
   );
 }
