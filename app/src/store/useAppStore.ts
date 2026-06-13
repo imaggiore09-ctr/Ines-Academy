@@ -16,6 +16,7 @@ interface AppStore {
   setIdentity: (patch: Partial<Identity>) => void;
   // Social
   setMetrics: (patch: Partial<SocialMetrics>) => void;
+  setSocialCalendar: (calendar: import('@/types/models').CalendarEntry[]) => void;
   // Obras
   addObra: (data: Partial<Obra>) => void;
   setObra: (id: string, data: Partial<Obra>) => void;
@@ -127,6 +128,11 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
+      setSocialCalendar: (calendar) =>
+        set((s) => ({
+          state: { ...s.state, SOCIAL: { ...s.state.SOCIAL, calendar } },
+        })),
+
       addObra: (data) =>
         set((s) => ({
           state: {
@@ -142,6 +148,7 @@ export const useAppStore = create<AppStore>()(
                 precio: data.precio || 0,
                 estado: data.estado || 'en proceso',
                 coleccion: data.coleccion || '',
+                diseno: data.diseno || '',
                 historia: data.historia || '',
               },
             ],

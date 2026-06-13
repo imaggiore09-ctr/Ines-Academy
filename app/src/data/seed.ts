@@ -229,14 +229,14 @@ export const ATELIER_SEED: AppState = {
   },
 
   OBRAS: [
-    { id: 'o1', nombre: 'Mañana en la cocina', tecnica: 'Óleo sobre lino', medidas: '60 × 50 cm', fecha: '2026-08-12', precio: 680, estado: 'fotografiada', coleccion: 'Interiores', historia: 'La luz que entra a las 8:00 sobre la mesa vacía. El silencio antes del desayuno.' },
-    { id: 'o2', nombre: 'Dálmata dormido', tecnica: 'Óleo sobre tabla', medidas: '40 × 40 cm', fecha: '2026-08-28', precio: 520, estado: 'terminada', coleccion: 'Animales', historia: 'Un encargo que se volvió personal. El perro se quedó dormido en la segunda sesión y ahí estaba la obra.' },
-    { id: 'o3', nombre: 'Mantel blanco', tecnica: 'Grafito sobre papel', medidas: '30 × 24 cm', fecha: '2026-09-02', precio: 240, estado: 'en proceso', coleccion: 'Interiores', historia: 'Un mantel arrugado sobre la mesa del domingo. El grafito es el único lenguaje que le va.' },
-    { id: 'o4', nombre: 'Taza roja', tecnica: 'Óleo sobre lino', medidas: '25 × 25 cm', fecha: '2026-09-15', precio: 300, estado: 'publicada', coleccion: 'Objetos', historia: 'El único punto de color de la serie. La taza de mi abuela, comprada en un mercado en Toledo.' },
-    { id: 'o5', nombre: 'Ventana norte', tecnica: 'Óleo sobre lino', medidas: '80 × 65 cm', fecha: '2026-09-20', precio: 890, estado: 'terminada', coleccion: 'Interiores', historia: 'La ventana del estudio que da al norte. Esa luz fría, constante, sin sombras.' },
-    { id: 'o6', nombre: 'Limones', tecnica: 'Óleo sobre tabla', medidas: '30 × 30 cm', fecha: '2026-09-28', precio: 340, estado: 'en proceso', coleccion: 'Objetos', historia: 'Tres limones en un cuenco de barro. Comprados en el mercado, pintados antes de que se pongan malos.' },
-    { id: 'o7', nombre: 'La siesta del gato', tecnica: 'Óleo sobre lino', medidas: '50 × 40 cm', fecha: '2026-10-05', precio: 580, estado: 'en proceso', coleccion: 'Animales', historia: '' },
-    { id: 'o8', nombre: 'Silla de enea', tecnica: 'Grafito sobre papel', medidas: '40 × 50 cm', fecha: '2026-10-12', precio: 380, estado: 'en proceso', coleccion: 'Interiores', historia: 'La silla que hay en cada casa española de los 70. La mía vino de la casa de mi abuela.' },
+    { id: 'o1', nombre: 'Mañana en la cocina', tecnica: 'Óleo sobre lino', medidas: '60 × 50 cm', fecha: '2026-08-12', precio: 680, estado: 'fotografiada', coleccion: 'Interiores', diseno: 'Figurativo', historia: 'La luz que entra a las 8:00 sobre la mesa vacía. El silencio antes del desayuno.' },
+    { id: 'o2', nombre: 'Dálmata dormido', tecnica: 'Óleo sobre tabla', medidas: '40 × 40 cm', fecha: '2026-08-28', precio: 520, estado: 'terminada', coleccion: 'Animales', diseno: 'Figurativo', historia: 'Un encargo que se volvió personal. El perro se quedó dormido en la segunda sesión y ahí estaba la obra.' },
+    { id: 'o3', nombre: 'Mantel blanco', tecnica: 'Grafito sobre papel', medidas: '30 × 24 cm', fecha: '2026-09-02', precio: 240, estado: 'en proceso', coleccion: 'Interiores', diseno: 'Minimalista', historia: 'Un mantel arrugado sobre la mesa del domingo. El grafito es el único lenguaje que le va.' },
+    { id: 'o4', nombre: 'Taza roja', tecnica: 'Óleo sobre lino', medidas: '25 × 25 cm', fecha: '2026-09-15', precio: 300, estado: 'publicada', coleccion: 'Objetos', diseno: 'Figurativo', historia: 'El único punto de color de la serie. La taza de mi abuela, comprada en un mercado en Toledo.' },
+    { id: 'o5', nombre: 'Ventana norte', tecnica: 'Óleo sobre lino', medidas: '80 × 65 cm', fecha: '2026-09-20', precio: 890, estado: 'terminada', coleccion: 'Interiores', diseno: 'Luz y sombra', historia: 'La ventana del estudio que da al norte. Esa luz fría, constante, sin sombras.' },
+    { id: 'o6', nombre: 'Limones', tecnica: 'Óleo sobre tabla', medidas: '30 × 30 cm', fecha: '2026-09-28', precio: 340, estado: 'en proceso', coleccion: 'Objetos', diseno: 'Bodegón', historia: 'Tres limones en un cuenco de barro. Comprados en el mercado, pintados antes de que se pongan malos.' },
+    { id: 'o7', nombre: 'La siesta del gato', tecnica: 'Óleo sobre lino', medidas: '50 × 40 cm', fecha: '2026-10-05', precio: 580, estado: 'en proceso', coleccion: 'Animales', diseno: 'Figurativo', historia: '' },
+    { id: 'o8', nombre: 'Silla de enea', tecnica: 'Grafito sobre papel', medidas: '40 × 50 cm', fecha: '2026-10-12', precio: 380, estado: 'en proceso', coleccion: 'Interiores', diseno: 'Minimalista', historia: 'La silla que hay en cada casa española de los 70. La mía vino de la casa de mi abuela.' },
   ],
 
   SHOP: {

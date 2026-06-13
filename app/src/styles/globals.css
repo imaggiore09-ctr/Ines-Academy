@@ -313,7 +313,8 @@ input, textarea, select { font-family: inherit; font-size: inherit; color: inher
 .input:focus, .textarea:focus, select.input:focus {
   outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(22,21,19,.06);
 }
-.textarea { resize: vertical; min-height: 84px; line-height: 1.5; }
+.textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+.textarea.tall { min-height: 200px; }
 .input::placeholder, .textarea::placeholder { color: var(--ink-faint); }
 
 /* Placeholder de imagen (rayado) */

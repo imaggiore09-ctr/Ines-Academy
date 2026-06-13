@@ -14,7 +14,7 @@ function eur(n: number) { return n.toLocaleString('es-ES', { style: 'currency', 
 function ObraModal({ obra, onClose }: { obra: Obra | null; onClose: () => void }) {
   const { addObra, setObra, deleteObra } = useAppStore();
   const isNew = !obra;
-  const [f, setF] = useState<Partial<Obra>>(obra || { nombre: '', tecnica: '', medidas: '', fecha: '', precio: 0, estado: 'en proceso', coleccion: '', historia: '' });
+  const [f, setF] = useState<Partial<Obra>>(obra || { nombre: '', tecnica: '', medidas: '', fecha: '', precio: 0, estado: 'en proceso', coleccion: '', diseno: '', historia: '' });
   const set = (k: keyof Obra, v: string | number | ObraEstado) => setF({ ...f, [k]: v });
   const save = () => {
     if (!f.nombre?.trim()) return;
@@ -56,6 +56,7 @@ function ObraModal({ obra, onClose }: { obra: Obra | null; onClose: () => void }
         </label>
         <Field label="Colección" value={f.coleccion || ''} onChange={(v) => set('coleccion', v)} />
       </div>
+      <Field label="Tipo de diseño (p.ej. Figurativo, Minimalista, Bodegón…)" value={f.diseno || ''} onChange={(v) => set('diseno', v)} placeholder="Escribe el tipo de diseño…" />
       <Field label="Historia de la obra" value={f.historia || ''} onChange={(v) => set('historia', v)} area />
     </Modal>
   );
@@ -72,7 +73,10 @@ function ObraCard({ o, onClick }: { o: Obra; onClick: () => void }) {
         </div>
         <div className="display" style={{ fontSize: 18, lineHeight: 1.1 }}>{o.nombre}</div>
         <div className="mono" style={{ fontSize: 11, color: 'var(--ink-mute)', marginTop: 6 }}>{o.tecnica} · {o.medidas}</div>
-        {o.coleccion && <div className="tag" style={{ marginTop: 10 }}><Icon name="obras" size={12} /> {o.coleccion}</div>}
+        <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
+          {o.coleccion && <div className="tag" style={{ fontSize: 11 }}><Icon name="obras" size={11} /> {o.coleccion}</div>}
+          {o.diseno && <div className="tag" style={{ fontSize: 11, borderColor: 'var(--red-line)', color: 'var(--red-deep)', background: 'var(--red-wash)' }}>{o.diseno}</div>}
+        </div>
       </div>
     </button>
   );
@@ -83,12 +87,15 @@ export function ObrasRoute() {
   const [view, setView] = useState<'grid' | 'tabla'>('grid');
   const [fc, setFc] = useState('todas');
   const [fe, setFe] = useState('todos');
+  const [fd, setFd] = useState('todos');
   const [edit, setEdit] = useState<Obra | null | undefined>(undefined);
 
   const colecciones = [...new Set(state.OBRAS.map((o) => o.coleccion).filter(Boolean))];
+  const disenos = [...new Set(state.OBRAS.map((o) => o.diseno).filter(Boolean))];
   let obras = state.OBRAS;
   if (fc !== 'todas') obras = obras.filter((o) => o.coleccion === fc);
   if (fe !== 'todos') obras = obras.filter((o) => o.estado === fe);
+  if (fd !== 'todos') obras = obras.filter((o) => o.diseno === fd);
   const vendidas = state.OBRAS.filter((o) => o.estado === 'vendida').length;
 
   return (
@@ -123,6 +130,10 @@ export function ObrasRoute() {
             <option value="todos">Todo estado</option>
             {ESTADOS.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
+          <select className="input" style={{ width: 'auto', padding: '7px 10px', fontSize: 13 }} value={fd} onChange={(e) => setFd(e.target.value)}>
+            <option value="todos">Todo diseño</option>
+            {disenos.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
         </div>
       </div>
 
@@ -130,7 +141,7 @@ export function ObrasRoute() {
         ? <div className="grid g-4">{obras.map((o) => <ObraCard key={o.id} o={o} onClick={() => setEdit(o)} />)}</div>
         : <div className="card flush" style={{ padding: '8px 16px' }}>
             <table className="tbl">
-              <thead><tr>{['Obra', 'Técnica', 'Medidas', 'Colección', 'Estado', 'Precio'].map((h) => <th key={h}>{h}</th>)}</tr></thead>
+              <thead><tr>{['Obra', 'Técnica', 'Medidas', 'Colección', 'Diseño', 'Estado', 'Precio'].map((h) => <th key={h}>{h}</th>)}</tr></thead>
               <tbody>
                 {obras.map((o) => (
                   <tr key={o.id} className="click" onClick={() => setEdit(o)}>
@@ -138,6 +149,7 @@ export function ObrasRoute() {
                     <td className="muted">{o.tecnica}</td>
                     <td className="mono" style={{ fontSize: 12 }}>{o.medidas}</td>
                     <td>{o.coleccion || '—'}</td>
+                    <td>{o.diseno ? <span className="tag" style={{ fontSize: 11, borderColor: 'var(--red-line)', color: 'var(--red-deep)', background: 'var(--red-wash)' }}>{o.diseno}</span> : '—'}</td>
                     <td><span className={'pill ' + ESTADO_PILL[o.estado]}>{o.estado}</span></td>
                     <td><span className="display" style={{ fontSize: 15 }}>{o.precio ? eur(o.precio) : '—'}</span></td>
                   </tr>

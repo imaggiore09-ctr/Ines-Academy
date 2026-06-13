@@ -2,9 +2,13 @@ import { useState } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { Bar } from '@/components/ui/Bar';
 import { Icon } from '@/components/ui/Icon';
+import { Modal } from '@/components/ui/Modal';
+import type { CalendarEntry } from '@/types/models';
+
+const TIPOS = ['Post', 'Reel', 'Story', 'Carrusel'];
 
 function fmtDate(s: string) {
-  if (!s) return '';
+  if (!s) return ['—', ''];
   const parts = new Date(s + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).split(' ');
   return parts;
 }
@@ -49,14 +53,70 @@ function IdeaColumn({ title, items, icon }: { title: string; items: string[]; ic
   );
 }
 
+function CalendarModal({ entry, onSave, onClose }: {
+  entry: CalendarEntry | null;
+  onSave: (e: CalendarEntry) => void;
+  onClose: () => void;
+}) {
+  const [f, setF] = useState<CalendarEntry>(entry || { day: '', type: 'Post', title: '' });
+  const isNew = !entry;
+  return (
+    <Modal kicker={isNew ? 'Nueva publicación' : 'Editar publicación'} title={isNew ? 'Programar publicación' : f.title || 'Publicación'} onClose={onClose}
+      footer={<>
+        <button className="btn ghost sm" onClick={onClose}>Cancelar</button>
+        <button className="btn red sm" onClick={() => { if (f.title.trim() && f.day) { onSave(f); onClose(); } }}>
+          {isNew ? 'Añadir' : 'Guardar'}
+        </button>
+      </>}>
+      <label className="field">
+        <span>Fecha</span>
+        <input type="date" className="input" value={f.day} onChange={(e) => setF({ ...f, day: e.target.value })} />
+      </label>
+      <label className="field">
+        <span>Tipo</span>
+        <select className="input" value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>
+          {TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </label>
+      <label className="field">
+        <span>Título / descripción</span>
+        <input className="input" value={f.title} placeholder="De qué trata esta publicación…" onChange={(e) => setF({ ...f, title: e.target.value })} />
+      </label>
+    </Modal>
+  );
+}
+
 export function RedesRoute() {
-  const { state, setMetrics } = useAppStore();
+  const { state, setMetrics, setSocialCalendar } = useAppStore();
   const s = state.SOCIAL;
   const m = s.metrics;
   const typeColor: Record<string, string> = { Post: 'var(--ink)', Reel: 'var(--red)', Story: 'var(--ink-faint)', Carrusel: 'var(--ink-soft)' };
+  const [calModal, setCalModal] = useState<CalendarEntry | null | undefined>(undefined);
+
+  const addOrEdit = (entry: CalendarEntry, oldEntry?: CalendarEntry) => {
+    if (!oldEntry) {
+      const sorted = [...s.calendar, entry].sort((a, b) => a.day.localeCompare(b.day));
+      setSocialCalendar(sorted);
+    } else {
+      const updated = s.calendar.map((c) => (c === oldEntry ? entry : c)).sort((a, b) => a.day.localeCompare(b.day));
+      setSocialCalendar(updated);
+    }
+  };
+
+  const deleteEntry = (entry: CalendarEntry) => {
+    setSocialCalendar(s.calendar.filter((c) => c !== entry));
+  };
 
   return (
     <div className="page">
+      {calModal !== undefined && (
+        <CalendarModal
+          entry={calModal}
+          onSave={(e) => addOrEdit(e, calModal || undefined)}
+          onClose={() => setCalModal(undefined)}
+        />
+      )}
+
       <div style={{ marginBottom: 28 }}>
         <div className="kicker kicker-red">La marca</div>
         <h1 className="page-title" style={{ marginTop: 8 }}>Redes sociales</h1>
@@ -73,7 +133,7 @@ export function RedesRoute() {
 
       <div className="grid" style={{ gridTemplateColumns: '1.3fr 1fr', alignItems: 'start', gap: 26, marginBottom: 28 }}>
         <div className="card">
-          <div className="card-hd between">
+          <div className="card-hd between" style={{ marginBottom: 14 }}>
             <div>
               <div className="kicker">Calendario de contenidos</div>
               <h3 className="display" style={{ fontSize: 19, marginTop: 4 }}>Próximas publicaciones</h3>
@@ -81,25 +141,33 @@ export function RedesRoute() {
             <Icon name="calendar" size={18} style={{ color: 'var(--ink-faint)' }} />
           </div>
           <div>
+            {s.calendar.length === 0 && (
+              <p className="muted" style={{ fontSize: 13, padding: '12px 0' }}>Sin publicaciones programadas todavía.</p>
+            )}
             {s.calendar.map((c, i) => {
               const parts = fmtDate(c.day);
               return (
-                <div key={i} className="row" style={{ gap: 14, padding: '12px 0', borderBottom: i < s.calendar.length - 1 ? '1px solid var(--line)' : 'none' }}>
+                <div key={i} className="row" style={{ gap: 14, padding: '11px 0', borderBottom: i < s.calendar.length - 1 ? '1px solid var(--line)' : 'none' }}>
                   <div style={{ textAlign: 'center', width: 44, flex: 'none' }}>
                     <div className="display" style={{ fontSize: 20, lineHeight: 1 }}>{parts[0]}</div>
                     <div className="mono" style={{ fontSize: 9, textTransform: 'uppercase', color: 'var(--ink-faint)' }}>{parts[1]}</div>
                   </div>
-                  <div style={{ width: 3, height: 30, borderRadius: 2, background: typeColor[c.type] || 'var(--ink)' }} />
-                  <div style={{ flex: 1 }}>
+                  <div style={{ width: 3, height: 30, borderRadius: 2, background: typeColor[c.type] || 'var(--ink)', flex: 'none' }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14 }}>{c.title}</div>
                     <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-mute)', marginTop: 1 }}>{c.type}</div>
                   </div>
-                  <span className="pill todo">Programado</span>
+                  <div className="row" style={{ gap: 6 }}>
+                    <button className="icon-btn" title="Editar" onClick={() => setCalModal(c)}><Icon name="edit" size={14} /></button>
+                    <button className="icon-btn" title="Eliminar" onClick={() => deleteEntry(c)} style={{ color: 'var(--red-deep)' }}><Icon name="x" size={14} /></button>
+                  </div>
                 </div>
               );
             })}
           </div>
-          <button className="btn ghost sm" style={{ marginTop: 16 }}><Icon name="plus" size={14} /> Programar publicación</button>
+          <button className="btn ghost sm" style={{ marginTop: 16 }} onClick={() => setCalModal(null)}>
+            <Icon name="plus" size={14} /> Programar publicación
+          </button>
         </div>
 
         <div className="card" style={{ background: 'var(--ink)', color: '#fff', borderColor: 'var(--ink)' }}>

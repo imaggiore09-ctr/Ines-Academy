@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { Modal } from '@/components/ui/Modal';
 import { Icon } from '@/components/ui/Icon';
@@ -10,8 +10,33 @@ import { LEARN_CONTENT } from '@/data/learn';
 import type { Lesson } from '@/data/learn';
 import type { LearnModule } from '@/types/models';
 
+const EJERCICIOS_KEY = 'atelier_ejercicios_v1';
+function loadEjercicios(): Record<string, string> {
+  try { return JSON.parse(localStorage.getItem(EJERCICIOS_KEY) || '{}'); } catch { return {}; }
+}
+function saveEjercicio(key: string, value: string) {
+  const all = loadEjercicios();
+  all[key] = value;
+  try { localStorage.setItem(EJERCICIOS_KEY, JSON.stringify(all)); } catch { /* ignore */ }
+}
+
 /* ─── Vista de una lección abierta ─── */
-function LessonView({ lesson, index, total, onBack }: { lesson: Lesson; index: number; total: number; onBack: () => void }) {
+function LessonView({ lesson, index, total, modId, onBack }: { lesson: Lesson; index: number; total: number; modId: string; onBack: () => void }) {
+  const ejercicioKey = `${modId}-${index}`;
+  const [respuesta, setRespuesta] = useState(() => loadEjercicios()[ejercicioKey] || '');
+  const [saved, setSaved] = useState(false);
+
+  const handleChange = useCallback((v: string) => {
+    setRespuesta(v);
+    setSaved(false);
+  }, []);
+
+  const handleSave = () => {
+    saveEjercicio(ejercicioKey, respuesta);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   return (
     <div>
       <button className="btn ghost sm" onClick={onBack} style={{ marginBottom: 16 }}>
@@ -31,11 +56,29 @@ function LessonView({ lesson, index, total, onBack }: { lesson: Lesson; index: n
         </ul>
       </div>
 
-      <div style={{ background: 'var(--red-wash)', border: '1px solid var(--red-line)', borderRadius: 'var(--r-md)', padding: '15px 18px', display: 'flex', gap: 12 }}>
-        <Icon name="edit" size={18} style={{ color: 'var(--red-deep)', flex: 'none', marginTop: 2 }} />
-        <div>
-          <div className="kicker kicker-red" style={{ marginBottom: 5 }}>Ejercicio aplicado</div>
-          <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', lineHeight: 1.55 }}>{lesson.ejercicio}</p>
+      <div style={{ background: 'var(--red-wash)', border: '1px solid var(--red-line)', borderRadius: 'var(--r-md)', padding: '15px 18px', marginBottom: 4 }}>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
+          <Icon name="edit" size={18} style={{ color: 'var(--red-deep)', flex: 'none', marginTop: 2 }} />
+          <div>
+            <div className="kicker kicker-red" style={{ marginBottom: 5 }}>Ejercicio aplicado</div>
+            <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', lineHeight: 1.55 }}>{lesson.ejercicio}</p>
+          </div>
+        </div>
+        <div style={{ borderTop: '1px solid var(--red-line)', paddingTop: 14 }}>
+          <div className="kicker kicker-red" style={{ marginBottom: 8 }}>Tu respuesta</div>
+          <textarea
+            className="textarea tall"
+            value={respuesta}
+            placeholder="Escribe aquí tu reflexión, ideas o ejercicio… Pulsa «Guardar respuesta» cuando termines."
+            onChange={(e) => handleChange(e.target.value)}
+            style={{ width: '100%', background: 'rgba(255,255,255,.65)', borderColor: 'var(--red-line)', marginBottom: 10, boxSizing: 'border-box' }}
+          />
+          <div className="row" style={{ gap: 10, justifyContent: 'flex-end' }}>
+            {saved && <span className="mono" style={{ fontSize: 11, color: 'var(--done)', alignSelf: 'center' }}>✓ Guardado</span>}
+            <button className="btn red sm" onClick={handleSave}>
+              <Icon name="check" size={14} /> Guardar respuesta
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -80,7 +123,7 @@ function LessonModal({ mod, onClose }: { mod: LearnModule; onClose: () => void }
       }
     >
       {lesson ? (
-        <LessonView lesson={lesson} index={open!} total={content.lessons.length} onBack={() => setOpen(null)} />
+        <LessonView lesson={lesson} index={open!} total={content.lessons.length} modId={mod.id} onBack={() => setOpen(null)} />
       ) : (
         <>
           <ImgPh label="Portada del módulo" style={{ aspectRatio: '16/7', marginBottom: 18 }} />

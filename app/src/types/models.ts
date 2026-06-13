@@ -55,6 +55,7 @@ export interface Obra {
   precio: number;
   estado: ObraEstado;
   coleccion: string;
+  diseno: string;
   historia: string;
 }
 
