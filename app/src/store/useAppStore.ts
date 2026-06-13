@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { ATELIER_SEED } from '@/data/seed';
 import type { AppState, Task, Identity, SocialMetrics, Obra, Movimiento } from '@/types/models';
 import { useUiStore } from '@/store/useUiStore';
+import { loadStateFromSupabase, scheduleSave, subscribeToChanges } from '@/lib/sync';
 
 interface AppStore {
   state: AppState;
@@ -29,11 +30,14 @@ interface AppStore {
   addMovimiento: (kind: 'ingresos' | 'gastos', data: Omit<Movimiento, 'id'>) => void;
   // Modules
   toggleModule: (id: string) => void;
+  // Sync
+  initSync: () => Promise<void>;
   // Toast
   flash: (msg: string) => void;
 }
 
 const STATUS_CYCLE = { pendiente: 'en progreso', 'en progreso': 'completada', completada: 'pendiente' } as const;
+
 
 export const useAppStore = create<AppStore>()(
   persist(
@@ -204,6 +208,22 @@ export const useAppStore = create<AppStore>()(
         })),
 
       flash: (msg) => useUiStore.getState().flash(msg),
+
+      initSync: async () => {
+        // Load shared state from Supabase (overrides local seed)
+        const remote = await loadStateFromSupabase();
+        if (remote) {
+          set({ state: remote });
+        } else {
+          // First run: save current state to Supabase so both users see the same data
+          const current = useAppStore.getState().state;
+          scheduleSave(current);
+        }
+        // Listen for real-time changes from the other user
+        subscribeToChanges((newState) => {
+          set({ state: newState });
+        });
+      },
     }),
     { name: 'atelier_app_v1' }
   )
