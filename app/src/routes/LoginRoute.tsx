@@ -3,7 +3,7 @@ import { useSession } from '@/store/useSession';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import { Icon } from '@/components/ui/Icon';
 import { Field } from '@/components/ui/Field';
-import inesImg from '@/assets/ines.jpg';
+import { inesImg } from '@/assets/inesData';
 
 const USERS = [
   { id: 'ines' as const, name: 'Inés', full: 'Inés de Cueto', role: 'Artista', ink: false },
